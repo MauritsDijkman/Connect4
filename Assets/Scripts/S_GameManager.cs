@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     // Static instance of the class
     public static GameManager Singleton { get; private set; }
 
-    private int[,] _board = new int[7, 6];  // 7 columns, 6 rows
+    private int[,] _board = new int[7, 6]; // 7 columns, 6 rows
     private int _currentPlayer;
 
     [Header("UI")]
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
         if (redoButton.activeSelf) redoButton.SetActive(false);
 
         _currentPlayer = Random.Range(1, 3);
-        
+
         // Initialize the board
         for (int x = 0; x < 7; x++)
         {
@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
 
     public void DropPiece(int column)
     {
-        if (_gameDone) return;
+        if (_gameDone | IsColumnFull(column)) return;
 
         GameObject tokenToDrop = _currentPlayer == 1 ? redTokenPrefab : yellowTokenPrefab;
 
@@ -70,6 +70,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (IsColumnFull(column))
+            columnButtons[column].interactable = false;
+
         if (CheckWinCondition())
         {
             SetPlayerColor();
@@ -77,10 +80,14 @@ public class GameManager : MonoBehaviour
             playerTurn.text = $"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!";
             Debug.Log($"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!");
 
-            foreach (Button pButton in columnButtons)
-                pButton.enabled = false;
+            EndGame();
+        }
+        else if (IsBoardFull())
+        {
+            playerTurn.text = "GAME DRAW!";
+            Debug.Log("GAME DRAW!");
 
-            if (!redoButton.activeSelf) redoButton.SetActive(true);
+            EndGame();
         }
         else
             SwitchPlayer();
@@ -104,7 +111,6 @@ public class GameManager : MonoBehaviour
                     _board[x + 2, y] == _currentPlayer &&
                     _board[x + 3, y] == _currentPlayer)
                 {
-                    _gameDone = true;
                     return true;
                 }
             }
@@ -120,7 +126,6 @@ public class GameManager : MonoBehaviour
                     _board[x, y + 2] == _currentPlayer &&
                     _board[x, y + 3] == _currentPlayer)
                 {
-                    _gameDone = true;
                     return true;
                 }
             }
@@ -136,7 +141,6 @@ public class GameManager : MonoBehaviour
                     _board[x + 2, y + 2] == _currentPlayer &&
                     _board[x + 3, y + 3] == _currentPlayer)
                 {
-                    _gameDone = true;
                     return true;
                 }
             }
@@ -152,13 +156,45 @@ public class GameManager : MonoBehaviour
                     _board[x + 2, y - 2] == _currentPlayer &&
                     _board[x + 3, y - 3] == _currentPlayer)
                 {
-                    _gameDone = true;
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    private bool IsBoardFull()
+    {
+        for (int x = 0; x < 7; x++)
+        {
+            for (int y = 0; y < 6; y++)
+            {
+                if (_board[x, y] == 0) // 0 indicates an empty space
+                {
+                    return false; // Board is not full
+                }
+            }
+        }
+
+        return true; // No empty spaces found, board is full
+    }
+
+    private void EndGame()
+    {
+        foreach (Button pButton in columnButtons)
+            pButton.enabled = false;
+
+        if (!redoButton.activeSelf)
+            redoButton.SetActive(true);
+
+        _gameDone = true;
+    }
+
+    private bool IsColumnFull(int column)
+    {
+        // A column is full if the topmost position is not empty
+        return _board[column, 5] != 0;
     }
 
     private void SetPlayerTurnName()
@@ -174,7 +210,7 @@ public class GameManager : MonoBehaviour
         _printColor = _currentPlayer == 1 ? "red" : "yellow";
     }
 
-    public void ReloadScene(string pLevelName)
+    public void LoadLevel(string pLevelName)
     {
         SceneManager.LoadSceneAsync(pLevelName);
     }
