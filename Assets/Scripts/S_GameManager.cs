@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -7,13 +8,14 @@ public class GameManager : MonoBehaviour
     // Static instance of the class
     public static GameManager Singleton { get; private set; }
 
-    private int[,] _board = new int[7, 6];      // 7 columns, 6 rows
-    private int _currentPlayer = 1;             // Player 1 starts
+    private int[,] _board = new int[7, 6];  // 7 columns, 6 rows
+    private int _currentPlayer;
 
     [Header("UI")]
     [SerializeField] private Transform[] tokenHolders = null;
     [SerializeField] private Button[] columnButtons = null;
     [SerializeField] private TMP_Text playerTurn = null;
+    [SerializeField] private GameObject redoButton = null;
 
     [Header("Token")]
     [SerializeField] private GameObject redTokenPrefab = null;
@@ -21,6 +23,8 @@ public class GameManager : MonoBehaviour
 
     private float _tokenDropHeight = 6f;
     private bool _gameDone = false;
+
+    private string _printColor;
 
     private void Awake()
     {
@@ -35,6 +39,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (redoButton.activeSelf) redoButton.SetActive(false);
+
+        _currentPlayer = Random.Range(1, 3);
+        
         // Initialize the board
         for (int x = 0; x < 7; x++)
         {
@@ -57,18 +65,22 @@ public class GameManager : MonoBehaviour
             {
                 _board[column, y] = _currentPlayer;
                 Vector3 spawnPosition = tokenHolders[column].position + new Vector3(0, _tokenDropHeight, 0);
-                GameObject token = Instantiate(tokenToDrop, spawnPosition, Quaternion.identity, tokenHolders[column]);
+                Instantiate(tokenToDrop, spawnPosition, Quaternion.identity, tokenHolders[column]);
                 break;
             }
         }
 
         if (CheckWinCondition())
         {
-            playerTurn.text = $"GAME WON BY PLAYER {_currentPlayer}!";
-            Debug.Log($"GAME WON BY PLAYER {_currentPlayer}!");
+            SetPlayerColor();
+
+            playerTurn.text = $"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!";
+            Debug.Log($"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!");
 
             foreach (Button pButton in columnButtons)
                 pButton.enabled = false;
+
+            if (!redoButton.activeSelf) redoButton.SetActive(true);
         }
         else
             SwitchPlayer();
@@ -151,7 +163,19 @@ public class GameManager : MonoBehaviour
 
     private void SetPlayerTurnName()
     {
-        playerTurn.text = $"TURN: Player {_currentPlayer}";
-        Debug.Log($"TURN: Player {_currentPlayer}");
+        SetPlayerColor();
+
+        playerTurn.text = $"TURN: <color={_printColor}>Player {_currentPlayer}</color>!";
+        Debug.Log($"TURN: <color={_printColor}>Player {_currentPlayer}</color>!");
+    }
+
+    private void SetPlayerColor()
+    {
+        _printColor = _currentPlayer == 1 ? "red" : "yellow";
+    }
+
+    public void ReloadScene(string pLevelName)
+    {
+        SceneManager.LoadSceneAsync(pLevelName);
     }
 }
