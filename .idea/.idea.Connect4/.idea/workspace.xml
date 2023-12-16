@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e2ee4dbd-d1c3-4ff4-b539-79f13ad84c67" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Connect4/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Connect4/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/P_TokenRed.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/P_TokenRed.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/L_Game.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/L_Game.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/L_MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/L_MainMenu.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/S_GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/S_GameManager.cs" afterDir="false" />
@@ -18,10 +19,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2ZYK2lch49fUBVVXhCwP0Mi3rgs" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -33,6 +34,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -43,15 +45,15 @@
   },
   "keyToStringList": {
     "rider.external.source.directories": [
-      "C:\\Users\\mauri\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache",
-      "C:\\Users\\mauri\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache",
-      "C:\\Users\\mauri\\AppData\\Local\\Symbols\\src"
+      "C:\\Users\\Maurits Dijkman\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache",
+      "C:\\Users\\Maurits Dijkman\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache",
+      "C:\\Users\\Maurits Dijkman\\AppData\\Local\\Symbols\\src"
     ]
   }
 }]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\2022.3.4f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2022.3.4f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath C:\Users\mauri\UnityProjects\Connect4 -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="C:\Users\mauri\UnityProjects\Connect4" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -59,7 +61,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\2022.3.4f1\Editor\Unity.exe" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2022.3.4f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath C:\Users\mauri\UnityProjects\Connect4 -testResults Logs/results.xml -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="C:\Users\mauri\UnityProjects\Connect4" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -96,6 +98,8 @@
       <option name="presentableId" value="Default" />
       <updated>1695419493288</updated>
       <workItem from="1702593371529" duration="2266000" />
+      <workItem from="1702726296975" duration="28000" />
+      <workItem from="1702726343826" duration="3503000" />
     </task>
     <servers />
   </component>

@@ -1201,7 +1201,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'TURN: PLAYER 0'
+  m_text: 'TURN: Player 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4766,6 +4766,10 @@ MonoBehaviour:
   redoButton: {fileID: 1985289182}
   redTokenPrefab: {fileID: 1105664297736900163, guid: de4e8c038a0de394099c5517f44b0f63, type: 3}
   yellowTokenPrefab: {fileID: 1105664297736900163, guid: bf89b9e3c93ad5e418fd6de1e69dbfcc, type: 3}
+  winTokenColor:
+    serializedVersion: 2
+    rgba: 4278255360
+  printDebugLogs: 1
 --- !u!4 &1219067705
 Transform:
   m_ObjectHideFlags: 0

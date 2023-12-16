@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -5,58 +6,73 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    // Static instance of the class
+    // Static instance of GameManager for singleton pattern
     public static GameManager Singleton { get; private set; }
-
+    
+    // Game Board Settings
     private int[,] _board = new int[7, 6]; // 7 columns, 6 rows
     private int _currentPlayer;
 
     [Header("UI")]
     [SerializeField] private Transform[] tokenHolders = null;
     [SerializeField] private Button[] columnButtons = null;
+    [Space (5)]
     [SerializeField] private TMP_Text playerTurn = null;
     [SerializeField] private GameObject redoButton = null;
 
-    [Header("Token")]
+    [Header("Tokens")]
     [SerializeField] private GameObject redTokenPrefab = null;
     [SerializeField] private GameObject yellowTokenPrefab = null;
-
+    [Space (5)]
+    [SerializeField] private Color32 winTokenColor = Color.green;
+    
+    [Header("Debug")]
+    [SerializeField] private bool printDebugLogs = false;
+    
+    // Token Values
     private float _tokenDropHeight = 6f;
+    private List<Vector2Int> _winningTokensPositions = new List<Vector2Int>();
+    
+    // Game Values
     private bool _gameDone = false;
-
     private string _printColor;
 
     private void Awake()
     {
-        if (!Singleton)
+        // Ensure only one instance of GameManager exists
+        if (Singleton == null)
             Singleton = this;
-        else
-        {
-            if (Singleton != this)
-                Destroy(this);
-        }
+        else if (Singleton != this)
+            Destroy(gameObject);
     }
 
     private void Start()
     {
-        if (redoButton.activeSelf) redoButton.SetActive(false);
+        // Hide redo button at game start
+        if (redoButton) redoButton.SetActive(false);
 
+        // Randomize starting player
         _currentPlayer = Random.Range(1, 3);
 
-        // Initialize the board
+        // Initialize game
+        InitializeBoard();
+        SetPlayerTurnName();
+    }
+
+    private void InitializeBoard()
+    {
         for (int x = 0; x < 7; x++)
         {
             for (int y = 0; y < 6; y++)
                 _board[x, y] = 0;
         }
-
-        SetPlayerTurnName();
     }
-
+    
     public void DropPiece(int column)
     {
-        if (_gameDone | IsColumnFull(column)) return;
+        if (_gameDone || IsColumnFull(column)) return;
 
+        // Choose the appropriate token based on the current player
         GameObject tokenToDrop = _currentPlayer == 1 ? redTokenPrefab : yellowTokenPrefab;
 
         for (int y = 0; y < 6; y++)
@@ -65,54 +81,110 @@ public class GameManager : MonoBehaviour
             {
                 _board[column, y] = _currentPlayer;
                 Vector3 spawnPosition = tokenHolders[column].position + new Vector3(0, _tokenDropHeight, 0);
-                Instantiate(tokenToDrop, spawnPosition, Quaternion.identity, tokenHolders[column]);
+                if (tokenToDrop) Instantiate(tokenToDrop, spawnPosition, Quaternion.identity, tokenHolders[column]);
                 break;
             }
         }
 
-        if (IsColumnFull(column))
-            columnButtons[column].interactable = false;
+        // Disable column button if column is full
+        if (IsColumnFull(column)) columnButtons[column].interactable = false;
 
-        if (CheckWinCondition())
-        {
-            SetPlayerColor();
-
-            playerTurn.text = $"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!";
-            Debug.Log($"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!");
-
-            EndGame();
-        }
-        else if (IsBoardFull())
-        {
-            playerTurn.text = "GAME DRAW!";
-            Debug.Log("GAME DRAW!");
-
-            EndGame();
-        }
-        else
-            SwitchPlayer();
+        // Check game status after the move
+        ProcessGameStatus();
     }
+    
+    #region Player
 
     private void SwitchPlayer()
     {
         _currentPlayer = _currentPlayer == 1 ? 2 : 1;
         SetPlayerTurnName();
     }
+    
+    private void SetPlayerTurnName()
+    {
+        SetPlayerColor();
+        PrintText($"TURN: <color={_printColor}>Player {_currentPlayer}</color>");
+    }
+
+    private void SetPlayerColor()
+    {
+        _printColor = _currentPlayer == 1 ? "red" : "yellow";
+    }
+
+    #endregion
+    
+    #region Check Board Status
+    
+    private void ProcessGameStatus()
+    {
+        if (CheckWinCondition())
+        {
+            SetPlayerColor();
+            HighlightWinningTokens();
+            
+            PrintText($"GAME WON BY <color={_printColor}>PLAYER {_currentPlayer}</color>!");
+            EndGame();
+        }
+        else if (IsBoardFull())
+        {
+            PrintText("IT'S A DRAW!");
+            EndGame();
+        }
+        else
+            SwitchPlayer();
+    }
+    
+    private bool IsColumnFull(int column)
+    {
+        return _board[column, 5] != 0;
+    }
+    
+    private bool IsBoardFull()
+    {
+        for (int x = 0; x < 7; x++)
+        {
+            for (int y = 0; y < 6; y++)
+            {
+                if (_board[x, y] == 0) return false;
+            }
+        }
+
+        return true;
+    }
 
     private bool CheckWinCondition()
     {
+        // Clear previous winning positions
+        _winningTokensPositions.Clear();
+
+        // Check for winning conditions
+        return CheckBoardForLineMatch();
+    }
+    
+    private void EndGame()
+    {
+        foreach (Button button in columnButtons)
+        {
+            if (button) button.interactable = false;
+        }
+
+        if (redoButton) redoButton.SetActive(true);
+
+        _gameDone = true;
+    }
+    
+    private bool CheckBoardForLineMatch()
+    {
+        // Checking for winning conditions
+        // Horizontal, Vertical, Diagonal (ascending and descending)
+
         // Horizontal check
         for (int y = 0; y < 6; y++)
         {
             for (int x = 0; x < 4; x++)
             {
-                if (_board[x, y] == _currentPlayer &&
-                    _board[x + 1, y] == _currentPlayer &&
-                    _board[x + 2, y] == _currentPlayer &&
-                    _board[x + 3, y] == _currentPlayer)
-                {
-                    return true;
-                }
+                if (CheckLineMatch(x, y, 1, 0)) return true;
             }
         }
 
@@ -121,13 +193,7 @@ public class GameManager : MonoBehaviour
         {
             for (int y = 0; y < 3; y++)
             {
-                if (_board[x, y] == _currentPlayer &&
-                    _board[x, y + 1] == _currentPlayer &&
-                    _board[x, y + 2] == _currentPlayer &&
-                    _board[x, y + 3] == _currentPlayer)
-                {
-                    return true;
-                }
+                if (CheckLineMatch(x, y, 0, 1)) return true;
             }
         }
 
@@ -136,13 +202,7 @@ public class GameManager : MonoBehaviour
         {
             for (int y = 0; y < 3; y++)
             {
-                if (_board[x, y] == _currentPlayer &&
-                    _board[x + 1, y + 1] == _currentPlayer &&
-                    _board[x + 2, y + 2] == _currentPlayer &&
-                    _board[x + 3, y + 3] == _currentPlayer)
-                {
-                    return true;
-                }
+                if (CheckLineMatch(x, y, 1, 1)) return true;
             }
         }
 
@@ -151,67 +211,56 @@ public class GameManager : MonoBehaviour
         {
             for (int y = 3; y < 6; y++)
             {
-                if (_board[x, y] == _currentPlayer &&
-                    _board[x + 1, y - 1] == _currentPlayer &&
-                    _board[x + 2, y - 2] == _currentPlayer &&
-                    _board[x + 3, y - 3] == _currentPlayer)
-                {
-                    return true;
-                }
+                if (CheckLineMatch(x, y, 1, -1)) return true;
             }
         }
 
         return false;
     }
 
-    private bool IsBoardFull()
+    private bool CheckLineMatch(int startX, int startY, int xIncrement, int yIncrement)
     {
-        for (int x = 0; x < 7; x++)
+        for (int i = 0; i < 4; i++)
         {
-            for (int y = 0; y < 6; y++)
-            {
-                if (_board[x, y] == 0) // 0 indicates an empty space
-                {
-                    return false; // Board is not full
-                }
-            }
+            int x = startX + i * xIncrement;
+            int y = startY + i * yIncrement;
+
+            if (_board[x, y] != _currentPlayer) return false;
         }
 
-        return true; // No empty spaces found, board is full
+        AddWinningPositions(startX, startY, xIncrement, yIncrement, 4);
+        return true;
+    }
+    
+    private void AddWinningPositions(int startX, int startY, int xIncrement, int yIncrement, int count)
+    {
+        for (int i = 0; i < count; i++)
+            _winningTokensPositions.Add(new Vector2Int(startX + (i * xIncrement), startY + (i * yIncrement)));
     }
 
-    private void EndGame()
+    private void HighlightWinningTokens()
     {
-        foreach (Button pButton in columnButtons)
-            pButton.enabled = false;
-
-        if (!redoButton.activeSelf)
-            redoButton.SetActive(true);
-
-        _gameDone = true;
+        foreach (var position in _winningTokensPositions)
+        {
+            Transform token = tokenHolders[position.x].GetChild(position.y);
+            if (token)
+            {
+                Image tokenSprite = token.GetComponent<Image>();
+                if (tokenSprite) tokenSprite.color = winTokenColor;
+            }
+        }
     }
-
-    private bool IsColumnFull(int column)
+    
+    #endregion
+    
+    private void PrintText(string text)
     {
-        // A column is full if the topmost position is not empty
-        return _board[column, 5] != 0;
+        if (playerTurn) playerTurn.text = text;
+        if (printDebugLogs) Debug.Log(text);
     }
-
-    private void SetPlayerTurnName()
+    
+    public void LoadLevel(string levelName)
     {
-        SetPlayerColor();
-
-        playerTurn.text = $"TURN: <color={_printColor}>Player {_currentPlayer}</color>!";
-        Debug.Log($"TURN: <color={_printColor}>Player {_currentPlayer}</color>!");
-    }
-
-    private void SetPlayerColor()
-    {
-        _printColor = _currentPlayer == 1 ? "red" : "yellow";
-    }
-
-    public void LoadLevel(string pLevelName)
-    {
-        SceneManager.LoadSceneAsync(pLevelName);
+        SceneManager.LoadSceneAsync(levelName);
     }
 }
